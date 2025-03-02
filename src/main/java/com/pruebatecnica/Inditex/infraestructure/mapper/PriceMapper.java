@@ -9,7 +9,6 @@ import com.pruebatecnica.Inditex.application.dto.PriceResponse;
 import com.pruebatecnica.Inditex.application.dto.PriceResponseDto;
 import com.pruebatecnica.Inditex.domain.model.Price;
 import com.pruebatecnica.Inditex.infraestructure.entity.PriceEntity;
-import com.pruebatecnica.Inditex.domain.port.input.PriceService;
 
 /**
  * Mapea entre diferentes representaciones de precios.
