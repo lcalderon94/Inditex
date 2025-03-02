@@ -1,6 +1,6 @@
 package com.pruebatecnica.Inditex.domain.port.input;
 
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -8,10 +8,7 @@ import java.util.Map;
 import com.pruebatecnica.Inditex.application.dto.PriceRequest;
 import com.pruebatecnica.Inditex.application.dto.PriceResponse;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
 
 /**
  * Puerto de entrada para el servicio de precios.
