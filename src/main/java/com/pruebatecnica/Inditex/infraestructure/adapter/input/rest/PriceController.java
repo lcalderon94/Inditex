@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pruebatecnica.Inditex.application.dto.PriceRequest;
 import com.pruebatecnica.Inditex.application.dto.PriceRequestDto;
+import com.pruebatecnica.Inditex.application.dto.PriceResponse;
 import com.pruebatecnica.Inditex.application.dto.PriceResponseDto;
 
 import com.pruebatecnica.Inditex.domain.port.input.PriceService;
@@ -48,7 +50,7 @@ public class PriceController {
          @RequestParam(name = "productId") Long productId,
          @RequestParam(name = "brandId") Long brandId) {
      
-     PriceService.PriceResponse priceResponse = priceService.findApplicablePrice(date, productId, brandId);
+	 PriceResponse priceResponse = priceService.findApplicablePrice(date, productId, brandId);
      PriceResponseDto responseDto = priceMapper.toDto(priceResponse);
      
      return ResponseEntity.ok(responseDto);
@@ -57,15 +59,15 @@ public class PriceController {
  // Crear nuevo precio
  @PostMapping
  public ResponseEntity<PriceResponseDto> createPrice(@RequestBody PriceRequestDto requestDto) {
-     PriceService.PriceRequest request = priceMapper.toDomainRequest(requestDto);
-     PriceService.PriceResponse response = priceService.createPrice(request);
+     PriceRequest request = priceMapper.toDomainRequest(requestDto);
+     PriceResponse response = priceService.createPrice(request);
      return ResponseEntity.status(HttpStatus.CREATED).body(priceMapper.toDto(response));
  }
  
  // Obtener precio por ID
  @GetMapping("/{id}")
  public ResponseEntity<PriceResponseDto> getPrice(@PathVariable(name = "id") Long id) {
-     PriceService.PriceResponse response = priceService.getPrice(id);
+     PriceResponse response = priceService.getPrice(id);
      return ResponseEntity.ok(priceMapper.toDto(response));
  }
  
@@ -84,8 +86,8 @@ public class PriceController {
          @PathVariable(name = "id") Long id, 
          @RequestBody PriceRequestDto requestDto) {
      
-     PriceService.PriceRequest request = priceMapper.toDomainRequest(requestDto);
-     PriceService.PriceResponse response = priceService.updatePrice(id, request);
+     PriceRequest request = priceMapper.toDomainRequest(requestDto);
+     PriceResponse response = priceService.updatePrice(id, request);
      return ResponseEntity.ok(priceMapper.toDto(response));
  }
  
@@ -95,7 +97,7 @@ public class PriceController {
          @PathVariable(name = "id") Long id,
          @RequestBody Map<String, Object> fields) {
      
-     PriceService.PriceResponse response = priceService.patchPrice(id, fields);
+     PriceResponse response = priceService.patchPrice(id, fields);
      return ResponseEntity.ok(priceMapper.toDto(response));
  }
  
