@@ -56,5 +56,18 @@ public class PriceControllerIntegrationTest {
                 .andExpect(jsonPath("$.priceList", is(1)))
                 .andExpect(jsonPath("$.price", is(35.50)));
     }
+    
+    @Test
+    void test4_shouldReturnPriceAt10amOnDay15() throws Exception {
+        mockMvc.perform(get("/api/prices/applicable")
+                .param("date", "2020-06-15T10:00:00")
+                .param("productId", "35455")
+                .param("brandId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.productId", is(35455)))
+                .andExpect(jsonPath("$.brandId", is(1)))
+                .andExpect(jsonPath("$.priceList", is(3)))
+                .andExpect(jsonPath("$.price", is(30.50)));
+    }
 
 }
