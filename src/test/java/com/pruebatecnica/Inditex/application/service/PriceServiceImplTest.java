@@ -38,7 +38,6 @@ class PriceServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        // Configurar los precios de prueba según los datos del ejemplo
         price1 = Price.builder()
                 .id(1L)
                 .brandId(1L)
