@@ -1,12 +1,36 @@
-name: CI/CD Pipeline Dev a Integración
+name: CI/CD Pipeline Integración a Main
+
 on:
   push:
-    branches: [ dev ]
-  pull_request:
-    branches: [ dev ]
+    branches: [ integration ]
   workflow_dispatch:  # Permite ejecutar el workflow manualmente
+
 jobs:
+  # Verificar que este push es de un merge
+  check-merge:
+    runs-on: ubuntu-latest
+    outputs:
+      is_merge: ${{ steps.check.outputs.is_merge }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # Necesitamos al menos 2 commits para verificar
+
+      - name: Check if push is from merge
+        id: check
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ "$COMMIT_MSG" == *"merge"* || "$COMMIT_MSG" == *"Merge"* || "$COMMIT_MSG" == *"Auto-merge"* ]]; then
+            echo "is_merge=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_merge=false" >> $GITHUB_OUTPUT
+          fi
+          echo "Commit message: $COMMIT_MSG"
+
+  # Solo ejecutar el resto del workflow si es un merge
   build-and-test:
+    needs: check-merge
+    if: needs.check-merge.outputs.is_merge == 'true'
     runs-on: ubuntu-latest
     
     steps:
@@ -37,36 +61,17 @@ jobs:
         name: target
         path: target/*.jar
         retention-days: 5
-  merge-to-integration:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' && success()
-    
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    
-    - name: Merge dev into integration
-      run: |
-        git config --global user.name 'Inditex CI Bot'
-        git config --global user.email 'ci-bot@tudominio.com'
-        git checkout integration
-        git merge --no-ff origin/dev -m "Auto-merge dev into integration"
-        git push origin integration
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-  # Nuevo job para construir la imagen Docker después del merge a integration
+
+  # Construir la imagen Docker y preparar para despliegue
   build-docker-image:
-    needs: merge-to-integration
+    needs: build-and-test
     runs-on: ubuntu-latest
     if: success()
     
     steps:
     - uses: actions/checkout@v3
       with:
-        ref: integration  # Usando la rama integration después del merge
+        ref: integration
     
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -76,5 +81,26 @@ jobs:
       with:
         context: .
         push: false
-        tags: inditex-prices-api:integration
-        # Solo construye la imagen, no la publica
+        tags: inditex-prices-api:main
+        # Solo construye la imagen para verificar, no la publica
+
+  # Merge a main si todos los pasos anteriores fueron exitosos
+  merge-to-main:
+    needs: [build-and-test, build-docker-image]
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Merge integration into main
+      run: |
+        git config --global user.name 'Inditex CI Bot'
+        git config --global user.email 'ci-bot@tudominio.com'
+        git checkout main
+        git merge --no-ff origin/integration -m "Auto-merge integration into main"
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
