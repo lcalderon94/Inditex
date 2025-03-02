@@ -1,5 +1,7 @@
 package com.pruebatecnica.Inditex.application.service;
 
+import com.pruebatecnica.Inditex.application.dto.PriceRequest;
+import com.pruebatecnica.Inditex.application.dto.PriceResponse;
 import com.pruebatecnica.Inditex.domain.exception.PriceNotFoundException;
 import com.pruebatecnica.Inditex.domain.model.Price;
 import com.pruebatecnica.Inditex.domain.port.input.PriceService;

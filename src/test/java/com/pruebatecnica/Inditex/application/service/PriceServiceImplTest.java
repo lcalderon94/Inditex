@@ -1,10 +1,11 @@
 package com.pruebatecnica.Inditex.application.service;
 
+import com.pruebatecnica.Inditex.application.dto.PriceRequest;
+import com.pruebatecnica.Inditex.application.dto.PriceResponse;
 import com.pruebatecnica.Inditex.domain.exception.PriceNotFoundException;
 import com.pruebatecnica.Inditex.domain.model.Price;
 import com.pruebatecnica.Inditex.domain.port.input.PriceService;
-import com.pruebatecnica.Inditex.domain.port.input.PriceService.PriceRequest;
-import com.pruebatecnica.Inditex.domain.port.input.PriceService.PriceResponse;
+
 import com.pruebatecnica.Inditex.domain.port.output.PriceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,10 +36,10 @@ class PriceServiceImplTest {
     private Price price3;
     private Price price4;
     private PriceRequest priceRequest;
+    
 
     @BeforeEach
     void setUp() {
-        // Configurar los precios de prueba según los datos del ejemplo
         price1 = Price.builder()
                 .id(1L)
                 .brandId(1L)
@@ -88,7 +89,7 @@ class PriceServiceImplTest {
                 .build();
                 
         // Creación de un PriceRequest para pruebas de creación/actualización
-        priceRequest = PriceService.PriceRequest.builder()
+        priceRequest = PriceRequest.builder()
                 .brandId(1L)
                 .startDate(LocalDateTime.parse("2023-01-01T00:00:00"))
                 .endDate(LocalDateTime.parse("2023-12-31T23:59:59"))
