@@ -24,8 +24,22 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     
-    - name: Run tests
+    - name: Run tests with JaCoCo coverage
       run: mvn test
+    
+    - name: Generate JaCoCo report
+      run: mvn jacoco:report
+      
+    - name: Check coverage thresholds
+      run: mvn jacoco:check
+    
+    - name: Upload JaCoCo coverage report
+      if: success() || failure()  # Subir incluso si falla la verificación de cobertura
+      uses: actions/upload-artifact@v4
+      with:
+        name: jacoco-report
+        path: target/site/jacoco/
+        retention-days: 5
     
     - name: Archive production artifacts
       if: success()
