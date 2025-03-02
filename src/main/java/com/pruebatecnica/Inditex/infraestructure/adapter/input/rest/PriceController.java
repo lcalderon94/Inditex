@@ -104,5 +104,7 @@ public class PriceController {
  public ResponseEntity<Void> deletePrice(@PathVariable(name = "id") Long id) {
      priceService.deletePrice(id);
      return ResponseEntity.noContent().build();
+     
+     
  }
 }
