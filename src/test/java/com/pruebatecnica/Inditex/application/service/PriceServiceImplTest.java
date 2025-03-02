@@ -36,6 +36,7 @@ class PriceServiceImplTest {
     private Price price3;
     private Price price4;
     private PriceRequest priceRequest;
+    
 
     @BeforeEach
     void setUp() {
