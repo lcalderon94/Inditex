@@ -1,0 +1,349 @@
+openapi: 3.0.3
+info:
+  title: API DE PRECIOS
+  description: API para consulta y gestión de precios aplicables a productos según fecha, marca y prioridad marcados para la prueba tecnica de capitole
+  version: "1.0"
+  contact:
+    name: Luis Calderón
+    email: luis_1994_2010@hotmail.com
+  license:
+    name: Licencia API
+    url: https://ejemplo.com/licencia
+
+servers:
+  - url: /api/prices
+    description: API DE PRECIOS PARA INDITEX
+
+tags:
+  - name: Precios
+    description: API para la gestión de precios según criterios temporales y de negocio
+
+paths:
+  /api/prices/applicable:
+    get:
+      tags:
+        - Precios
+      summary: Obtiene el precio aplicable según fecha, producto y marca
+      description: Devuelve el precio a aplicar considerando la fecha, el producto y la marca. En caso de tarifas coincidentes, selecciona la de mayor prioridad.
+      operationId: getApplicablePrice
+      parameters:
+        - name: date
+          in: query
+          description: Fecha de aplicación (ISO Date Time)
+          required: true
+          schema:
+            type: string
+            format: date-time
+          example: 2020-06-14T10:00:00
+        - name: productId
+          in: query
+          description: ID del producto
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 35455
+        - name: brandId
+          in: query
+          description: ID de la marca (1 = ZARA)
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Precio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponseDto'
+        '404':
+          description: Precio no encontrado
+        '400':
+          description: Parámetros inválidos
+
+  /api/prices:
+    post:
+      tags:
+        - Precios
+      summary: Crea un nuevo precio
+      description: Crea un nuevo precio
+      operationId: createPrice
+      requestBody:
+        description: Datos del precio a crear
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceRequestDto'
+      responses:
+        '201':
+          description: Precio creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponseDto'
+        '400':
+          description: Datos inválidos
+    
+    get:
+      tags:
+        - Precios
+      summary: Obtiene todos los precios registrados
+      description: Obtiene todos los precios registrados
+      operationId: getAllPrices
+      responses:
+        '200':
+          description: Lista de precios recuperada correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PriceResponseDto'
+
+  /api/prices/{id}:
+    get:
+      tags:
+        - Precios
+      summary: Obtiene un precio por su ID
+      description: Obtiene un precio por su ID
+      operationId: getPrice
+      parameters:
+        - name: id
+          in: path
+          description: ID del precio
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Precio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponseDto'
+        '404':
+          description: Precio no encontrado
+
+    put:
+      tags:
+        - Precios
+      summary: Actualiza un precio existente
+      description: Actualiza un precio existente
+      operationId: updatePrice
+      parameters:
+        - name: id
+          in: path
+          description: ID del precio a actualizar
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        description: Datos actualizados del precio
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceRequestDto'
+      responses:
+        '200':
+          description: Precio actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponseDto'
+        '404':
+          description: Precio no encontrado
+        '400':
+          description: Datos inválidos
+
+    patch:
+      tags:
+        - Precios
+      summary: Actualiza parcialmente un precio
+      description: Actualiza parcialmente un precio
+      operationId: patchPrice
+      parameters:
+        - name: id
+          in: path
+          description: ID del precio a actualizar parcialmente
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        description: Campos a actualizar (puede incluir cualquiera de los campos del precio)
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchPrice'
+      responses:
+        '200':
+          description: Precio actualizado parcialmente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponseDto'
+        '404':
+          description: Precio no encontrado
+        '400':
+          description: Datos inválidos
+
+    delete:
+      tags:
+        - Precios
+      summary: Elimina un precio
+      description: Elimina un precio
+      operationId: deletePrice
+      parameters:
+        - name: id
+          in: path
+          description: ID del precio a eliminar
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '204':
+          description: Precio eliminado correctamente
+        '404':
+          description: Precio no encontrado
+
+components:
+  schemas:
+    PriceRequestDto:
+      type: object
+      description: Solicitud para crear o actualizar un precio
+      properties:
+        brandId:
+          type: integer
+          format: int64
+          description: ID de la marca (1 = ZARA)
+          example: 1
+        startDate:
+          type: string
+          format: date-time
+          description: Fecha de inicio de aplicación
+          example: "2020-06-14T00:00:00"
+        endDate:
+          type: string
+          format: date-time
+          description: Fecha fin de aplicación
+          example: "2020-12-31T23:59:59"
+        priceList:
+          type: integer
+          format: int64
+          description: Identificador de la tarifa de precios
+          example: 1
+        productId:
+          type: integer
+          format: int64
+          description: ID del producto
+          example: 35455
+        priority:
+          type: integer
+          description: Prioridad para desambiguación (mayor valor = mayor prioridad)
+          example: 1
+        price:
+          type: number
+          format: double
+          description: Precio final del producto
+          example: 35.50
+        currency:
+          type: string
+          description: Código ISO de la moneda
+          example: "EUR"
+      required:
+        - brandId
+        - startDate
+        - endDate
+        - priceList
+        - productId
+        - priority
+        - price
+        - currency
+
+    PriceResponseDto:
+      type: object
+      description: Respuesta con información del precio aplicable
+      properties:
+        productId:
+          type: integer
+          format: int64
+          description: ID del producto
+          example: 35455
+        brandId:
+          type: integer
+          format: int64
+          description: ID de la marca (1 = ZARA)
+          example: 1
+        priceList:
+          type: integer
+          format: int64
+          description: Identificador de la tarifa aplicada
+          example: 1
+        startDate:
+          type: string
+          format: date-time
+          description: Fecha de inicio de aplicación
+          example: "2020-06-14T00:00:00"
+        endDate:
+          type: string
+          format: date-time
+          description: Fecha fin de aplicación
+          example: "2020-12-31T23:59:59"
+        price:
+          type: number
+          format: double
+          description: Precio final a aplicar
+          example: 35.50
+
+    PatchPrice:
+      type: object
+      description: Ejemplo de campos actualizables en un precio
+      properties:
+        brandId:
+          type: integer
+          format: int64
+          description: ID de la marca (1 = ZARA)
+          example: 1
+        startDate:
+          type: string
+          description: Fecha de inicio (opcional)
+          example: "2020-06-14T00:00:00"
+        endDate:
+          type: string
+          description: Fecha de fin (opcional)
+          example: "2020-12-31T23:59:59"
+        priceList:
+          type: integer
+          format: int64
+          description: ID de la tarifa de precios
+          example: 1
+        productId:
+          type: integer
+          format: int64
+          description: ID del producto
+          example: 35455
+        priority:
+          type: integer
+          description: Prioridad del precio
+          example: 1
+        price:
+          type: number
+          format: double
+          description: Precio final del producto
+          example: 42.99
+        currency:
+          type: string
+          description: Moneda del precio
+          example: "EUR"
