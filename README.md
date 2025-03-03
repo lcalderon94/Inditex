@@ -110,11 +110,33 @@ src/main/java/com/pruebatecnica/Inditex/
 
 ## Documentación de la API
 
-La API está documentada usando OpenAPI (Swagger). Una vez iniciada la aplicación, puedes acceder a la documentación interactiva en:
+La API está documentada utilizando dos enfoques complementarios de OpenAPI (Swagger):
+
+### 1. Documentación generada automáticamente (Code-First)
+
+Se ha utilizado la dependencia SpringDoc OpenAPI para generar la documentación basada en anotaciones en el código. Este enfoque "code-first" permite que la documentación esté siempre sincronizada con la implementación actual. Se han añadido anotaciones detalladas en los controladores y DTOs para proporcionar información clara sobre endpoints, parámetros, esquemas y respuestas.
+
+Una vez iniciada la aplicación, puedes acceder a la documentación interactiva en:
 
 ```
 http://localhost:8080/swagger-ui.html
 ```
+
+### 2. Especificación OpenAPI manual (Design-First)
+
+Adicionalmente, se ha creado manualmente un archivo de especificación OpenAPI en formato YAML. Consulte la Especificación Swagger para ver el contrato completo de la API. Este enfoque "design-first" permite definir con precisión el contrato de API y puede utilizarse como referencia o para generar código cliente.
+La especificación manual incluye:
+
+Definición completa de todos los endpoints
+Descripción detallada de parámetros
+Esquemas de solicitud y respuesta
+Ejemplos de uso
+Posibles códigos de respuesta
+
+Este enfoque dual combina lo mejor de ambos mundos:
+
+La especificación manual sirve como contrato y documentación de referencia
+La documentación generada refleja siempre el estado actual de la implementación
 
 ### Endpoints Principales
 
@@ -141,7 +163,7 @@ Respuesta:
 }
 ```
 
-Además, se implementaron otros endpoints para gestión completa (CRUD) de precios.
+Además, se implementaron otros endpoints para gestión completa (CRUD) de precios, todos documentados tanto en el Swagger UI generado como en la especificación YAML.
 
 ## Ejecución de la Aplicación
 
