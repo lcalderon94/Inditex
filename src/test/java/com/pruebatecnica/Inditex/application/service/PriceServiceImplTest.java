@@ -167,19 +167,7 @@ class PriceServiceImplTest {
     
     @Test
     void shouldCreatePrice() {
-        // Crear un nuevo Price basado en PriceRequest
-        Price newPrice = Price.builder()
-                .brandId(priceRequest.getBrandId())
-                .startDate(priceRequest.getStartDate())
-                .endDate(priceRequest.getEndDate())
-                .priceList(priceRequest.getPriceList())
-                .productId(priceRequest.getProductId())
-                .priority(priceRequest.getPriority())
-                .price(priceRequest.getPrice())
-                .currency(priceRequest.getCurrency())
-                .build();
-                
-        // Configurar el mock
+        // Configurar el mock con el precio que debería devolver al guardar
         Price savedPrice = Price.builder()
                 .id(5L)
                 .brandId(priceRequest.getBrandId())
@@ -347,6 +335,247 @@ class PriceServiceImplTest {
         
         assertThrows(PriceNotFoundException.class, () -> 
             priceService.deletePrice(999L)
+        );
+    }
+    
+    //Test con limites de fechas
+    @Test
+    void shouldFindPriceExactlyAtStartDate() {
+        // Probar justo en el límite de inicio de la tarifa
+        LocalDateTime exactStartDate = LocalDateTime.parse("2020-06-14T15:00:00");
+        when(priceRepository.findByDateProductAndBrand(exactStartDate, 35455L, 1L))
+                .thenReturn(List.of(price1, price2));
+        
+        PriceResponse result = priceService.findApplicablePrice(exactStartDate, 35455L, 1L);
+        
+        assertEquals(2L, result.getPriceList());
+        assertEquals(new BigDecimal("25.45"), result.getPrice());
+    }
+
+    @Test
+    void shouldFindPriceExactlyAtEndDate() {
+        // Probar justo en el límite de fin de la tarifa
+        LocalDateTime exactEndDate = LocalDateTime.parse("2020-06-14T18:30:00");
+        when(priceRepository.findByDateProductAndBrand(exactEndDate, 35455L, 1L))
+                .thenReturn(List.of(price1, price2));
+        
+        PriceResponse result = priceService.findApplicablePrice(exactEndDate, 35455L, 1L);
+        
+        assertEquals(2L, result.getPriceList());
+        assertEquals(new BigDecimal("25.45"), result.getPrice());
+    }
+
+    @Test
+    void shouldFindPriceOneSecondAfterStartDate() {
+        // Probar un segundo después del inicio
+        LocalDateTime oneSecondAfterStart = LocalDateTime.parse("2020-06-14T15:00:01");
+        when(priceRepository.findByDateProductAndBrand(oneSecondAfterStart, 35455L, 1L))
+                .thenReturn(List.of(price1, price2));
+        
+        PriceResponse result = priceService.findApplicablePrice(oneSecondAfterStart, 35455L, 1L);
+        
+        assertEquals(2L, result.getPriceList());
+        assertEquals(new BigDecimal("25.45"), result.getPrice());
+    }
+
+    @Test
+    void shouldFindPriceOneSecondBeforeEndDate() {
+        // Probar un segundo antes del fin
+        LocalDateTime oneSecondBeforeEnd = LocalDateTime.parse("2020-06-14T18:29:59");
+        when(priceRepository.findByDateProductAndBrand(oneSecondBeforeEnd, 35455L, 1L))
+                .thenReturn(List.of(price1, price2));
+        
+        PriceResponse result = priceService.findApplicablePrice(oneSecondBeforeEnd, 35455L, 1L);
+        
+        assertEquals(2L, result.getPriceList());
+        assertEquals(new BigDecimal("25.45"), result.getPrice());
+    }
+    
+    //Pruebas adicionales testeando los escenarios de negocio
+    @Test
+    void shouldReturnEmptyResponseWhenNoPricesExist() {
+        // Escenario sin precios
+        LocalDateTime date = LocalDateTime.parse("2021-01-01T10:00:00");
+        when(priceRepository.findByDateProductAndBrand(date, 35455L, 1L))
+                .thenReturn(Collections.emptyList());
+                
+        // Debe lanzar una excepción cuando no hay precios aplicables
+        PriceNotFoundException exception = assertThrows(
+            PriceNotFoundException.class,
+            () -> priceService.findApplicablePrice(date, 35455L, 1L)
+        );
+        
+        assertTrue(exception.getMessage().contains("No se encontró precio"));
+    }
+
+    @Test
+    void shouldHandleDifferentBrandsCorrectly() {
+        // Prueba con marca diferente
+        Price otherBrandPrice = Price.builder()
+                .id(8L)
+                .brandId(2L) // Otra marca
+                .startDate(LocalDateTime.parse("2020-06-14T00:00:00"))
+                .endDate(LocalDateTime.parse("2020-12-31T23:59:59"))
+                .priceList(7L)
+                .productId(35455L)
+                .priority(1)
+                .price(new BigDecimal("45.50"))
+                .currency("EUR")
+                .build();
+                
+        LocalDateTime date = LocalDateTime.parse("2020-06-14T10:00:00");
+        when(priceRepository.findByDateProductAndBrand(date, 35455L, 2L))
+                .thenReturn(List.of(otherBrandPrice));
+                
+        PriceResponse result = priceService.findApplicablePrice(date, 35455L, 2L);
+        
+        assertEquals(2L, result.getBrandId());
+        assertEquals(7L, result.getPriceList());
+        assertEquals(new BigDecimal("45.50"), result.getPrice());
+    }
+
+    @Test
+    void shouldHandleDifferentProductsCorrectly() {
+        // Prueba con producto diferente
+        Price otherProductPrice = Price.builder()
+                .id(9L)
+                .brandId(1L)
+                .startDate(LocalDateTime.parse("2020-06-14T00:00:00"))
+                .endDate(LocalDateTime.parse("2020-12-31T23:59:59"))
+                .priceList(8L)
+                .productId(35456L) // Otro producto
+                .priority(1)
+                .price(new BigDecimal("99.50"))
+                .currency("EUR")
+                .build();
+                
+        LocalDateTime date = LocalDateTime.parse("2020-06-14T10:00:00");
+        when(priceRepository.findByDateProductAndBrand(date, 35456L, 1L))
+                .thenReturn(List.of(otherProductPrice));
+                
+        PriceResponse result = priceService.findApplicablePrice(date, 35456L, 1L);
+        
+        assertEquals(35456L, result.getProductId());
+        assertEquals(8L, result.getPriceList());
+        assertEquals(new BigDecimal("99.50"), result.getPrice());
+    }
+    //Pruebas de validacion especificas
+    
+    @Test
+    void shouldThrowExceptionWhenUpdatingWithNullFields() {
+        // Prueba con campos nulos en la actualización
+        PriceRequest nullRequest = null;
+        
+        when(priceRepository.findById(1L)).thenReturn(Optional.of(price1));
+        
+        assertThrows(NullPointerException.class, () -> 
+            priceService.updatePrice(1L, nullRequest)
+        );
+    }
+
+    @Test
+    void shouldHandlePatchWithInvalidFieldValues() {
+        // Prueba con valores inválidos en patch
+        Map<String, Object> invalidFields = new HashMap<>();
+        invalidFields.put("price", "invalid-price");
+        
+        when(priceRepository.findById(1L)).thenReturn(Optional.of(price1));
+        
+        assertThrows(NumberFormatException.class, () -> 
+            priceService.patchPrice(1L, invalidFields)
+        );
+    }
+
+    @Test
+    void shouldHandlePatchWithUnknownFields() {
+        // Prueba con campos desconocidos
+        Map<String, Object> unknownFields = new HashMap<>();
+        unknownFields.put("unknownField", "value");
+        unknownFields.put("price", "45.50");
+        
+        Price patchedPrice = Price.builder()
+                .id(1L)
+                .brandId(price1.getBrandId())
+                .startDate(price1.getStartDate())
+                .endDate(price1.getEndDate())
+                .priceList(price1.getPriceList())
+                .productId(price1.getProductId())
+                .priority(price1.getPriority())
+                .price(new BigDecimal("45.50"))
+                .currency(price1.getCurrency())
+                .build();
+                
+        when(priceRepository.findById(1L)).thenReturn(Optional.of(price1));
+        when(priceRepository.save(any(Price.class))).thenReturn(patchedPrice);
+        
+        // El campo desconocido debe ser ignorado pero no causar error
+        PriceResponse result = priceService.patchPrice(1L, unknownFields);
+        
+        assertEquals(new BigDecimal("45.50"), result.getPrice());
+        // El resto de campos deben permanecer igual
+        assertEquals(price1.getBrandId(), result.getBrandId());
+        assertEquals(price1.getProductId(), result.getProductId());
+    }
+    
+    //Pruebas de prioridad y seleccion
+    @Test
+    void shouldSelectHighestPriorityWhenMultiplePricesApply() {
+        // Crear un precio con prioridad más alta
+        Price highPriorityPrice = Price.builder()
+                .id(6L)
+                .brandId(1L)
+                .startDate(LocalDateTime.parse("2020-06-15T00:00:00"))
+                .endDate(LocalDateTime.parse("2020-06-15T23:59:59"))
+                .priceList(5L)
+                .productId(35455L)
+                .priority(2) // Mayor prioridad que los demás
+                .price(new BigDecimal("40.50"))
+                .currency("EUR")
+                .build();
+                
+        LocalDateTime date = LocalDateTime.parse("2020-06-15T10:00:00");
+        when(priceRepository.findByDateProductAndBrand(date, 35455L, 1L))
+                .thenReturn(List.of(price1, price3, highPriorityPrice));
+                
+        PriceResponse result = priceService.findApplicablePrice(date, 35455L, 1L);
+        
+        // Debe seleccionar el precio con la prioridad más alta
+        assertEquals(5L, result.getPriceList());
+        assertEquals(new BigDecimal("40.50"), result.getPrice());
+    }
+
+    @Test
+    void shouldHandleMultiplePricesWithSamePriority() {
+        // Crear un precio con la misma prioridad pero fecha más reciente
+        Price samePriorityNewerPrice = Price.builder()
+                .id(7L)
+                .brandId(1L)
+                .startDate(LocalDateTime.parse("2020-06-15T09:00:00"))
+                .endDate(LocalDateTime.parse("2020-06-15T11:00:00"))
+                .priceList(6L)
+                .productId(35455L)
+                .priority(1) // Misma prioridad que price3
+                .price(new BigDecimal("33.50"))
+                .currency("EUR")
+                .build();
+                
+        LocalDateTime date = LocalDateTime.parse("2020-06-15T10:00:00");
+        when(priceRepository.findByDateProductAndBrand(date, 35455L, 1L))
+                .thenReturn(List.of(price1, price3, samePriorityNewerPrice));
+                
+        PriceResponse result = priceService.findApplicablePrice(date, 35455L, 1L);
+        
+        // Con la misma prioridad, verificamos que sea uno de los dos precios con prioridad 1
+        assertTrue(
+            result.getPriceList().equals(3L) || result.getPriceList().equals(6L),
+            "Debe seleccionar uno de los precios con prioridad 1"
+        );
+        
+        // Verificar que el precio seleccionado coincida con uno de los esperados
+        assertTrue(
+            result.getPrice().equals(new BigDecimal("30.50")) || 
+            result.getPrice().equals(new BigDecimal("33.50")),
+            "El precio debe coincidir con uno de los items de prioridad 1"
         );
     }
 }
