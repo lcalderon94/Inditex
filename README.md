@@ -124,14 +124,18 @@ http://localhost:8080/swagger-ui.html
 
 ### 2. Especificación OpenAPI manual (Design-First)
 
-Adicionalmente, se ha creado manualmente un archivo de especificación OpenAPI en formato YAML. Consulte la Especificación Swagger para ver el contrato completo de la API. Este enfoque "design-first" permite definir con precisión el contrato de API y puede utilizarse como referencia o para generar código cliente.
-La especificación manual incluye:
+Adicionalmente, se ha creado manualmente un archivo de especificación OpenAPI en formato YAML. Consulte la [Especificación Swagger](externos/swagger/swagger.yaml) para ver el contrato completo de la API. Este enfoque "design-first" permite definir con precisión el contrato de API y puede utilizarse como referencia o para generar código cliente.
 
-Definición completa de todos los endpoints
-Descripción detallada de parámetros
-Esquemas de solicitud y respuesta
-Ejemplos de uso
-Posibles códigos de respuesta
+La especificación manual incluye:
+- Definición completa de todos los endpoints
+- Descripción detallada de parámetros
+- Esquemas de solicitud y respuesta
+- Ejemplos de uso
+- Posibles códigos de respuesta
+
+Este enfoque dual combina lo mejor de ambos mundos:
+- La especificación manual sirve como contrato y documentación de referencia
+- La documentación generada refleja siempre el estado actual de la implementación
 
 Este enfoque dual combina lo mejor de ambos mundos:
 
