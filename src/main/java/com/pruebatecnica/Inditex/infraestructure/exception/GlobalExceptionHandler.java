@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.pruebatecnica.Inditex.domain.exception.PriceNotFoundException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import java.time.format.DateTimeParseException;
+
 
 import java.time.LocalDateTime;
 
@@ -82,5 +85,21 @@ public class GlobalExceptionHandler {
         public LocalDateTime getTimestamp() {
             return timestamp;
         }
+    }
+    
+    /**
+     * Maneja excepciones relacionadas con la conversión de parámetros.
+     */
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, DateTimeParseException.class})
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(Exception ex) {
+        log.error("Error de conversión de parámetros: {}", ex.getMessage());
+        
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Error en el formato de los parámetros de la solicitud",
+                LocalDateTime.now()
+        );
+        
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }
