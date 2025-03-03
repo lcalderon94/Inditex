@@ -1,6 +1,4 @@
 # Inditex
-Aquí tienes el README completo con el enlace al informe técnico al final:
-
 # Prueba Técnica Inditex
 
 ## Índice de Contenidos
