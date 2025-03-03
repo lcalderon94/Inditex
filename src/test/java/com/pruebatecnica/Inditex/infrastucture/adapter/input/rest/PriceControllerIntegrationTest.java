@@ -141,7 +141,6 @@ public class PriceControllerIntegrationTest {
     // Test para validar el flujo completo de CRUD
     @Test
     void shouldPerformFullCrudLifecycle() throws Exception {
-        // 1. Crear un nuevo precio
         PriceRequestDto newPriceDto = PriceRequestDto.builder()
                 .brandId(1L)
                 .startDate(LocalDateTime.parse("2023-01-01T00:00:00"))
@@ -155,7 +154,6 @@ public class PriceControllerIntegrationTest {
         
         String newPriceJson = objectMapper.writeValueAsString(newPriceDto);
         
-        // Crear precio y obtener la respuesta
         MvcResult createResult = mockMvc.perform(post("/api/prices")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(newPriceJson))
@@ -165,22 +163,17 @@ public class PriceControllerIntegrationTest {
                 .andDo(print())
                 .andReturn();
                 
-        // Ya que no tenemos getId() en PriceResponseDto, usaremos el priceList para identificar
-        // Este enfoque funciona siempre que el priceList sea único
+
         
-     // 2. Verificar que se creó correctamente obteniendo por ID (asumiendo que conoces el ID)
         Long createdId = 5L; // El ID asignado al nuevo precio
         mockMvc.perform(get("/api/prices/{id}", createdId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.priceList", is(10)))
                 .andExpect(jsonPath("$.price", is(45.99)));
                 
-        // Alternativa: Buscar todos y filtrar
         String responseJson = createResult.getResponse().getContentAsString();
-        // Aquí podríamos analizar el JSON para extraer algún identificador
         
-        // 3. Actualizar parcialmente el precio (asumimos que sabemos que el ID es 5 para el nuevo precio)
-        // Nota: En un escenario real, deberíamos obtener el ID del nuevo recurso
+
         mockMvc.perform(patch("/api/prices/5")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"price\": 50.99}"))
@@ -188,11 +181,9 @@ public class PriceControllerIntegrationTest {
                 .andExpect(jsonPath("$.price", is(50.99)))
                 .andExpect(jsonPath("$.priceList", is(10)));
         
-        // 4. Eliminar el precio
         mockMvc.perform(delete("/api/prices/5"))
                 .andExpect(status().isNoContent());
         
-        // 5. Verificar que ya no existe
         mockMvc.perform(get("/api/prices/5"))
                 .andExpect(status().isNotFound());
     }
@@ -232,7 +223,6 @@ public class PriceControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
     
-    // Pruebas adicionales que ya existían
     @Test
     void shouldCreateNewPrice() throws Exception {
         String requestBody = "{\"brandId\":1,\"startDate\":\"2023-01-01T00:00:00\",\"endDate\":\"2023-12-31T23:59:59\",\"priceList\":5,\"productId\":35455,\"priority\":1,\"price\":42.99,\"currency\":\"EUR\"}";
