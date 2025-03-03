@@ -30,7 +30,6 @@ public class PriceRepositoryIntegrationTests {
         assertNotNull(prices);
         assertEquals(2, prices.size());
         
-        // Verificar que los precios corresponden a los esperados
         boolean containsPrice1 = prices.stream()
                 .anyMatch(p -> p.getPriceList() == 1L && p.getPrice().compareTo(new BigDecimal("35.50")) == 0);
                 
@@ -42,7 +41,6 @@ public class PriceRepositoryIntegrationTests {
     
     @Test
     void shouldPerformCrudOperationsOnDatabase() {
-        // 1. Insertar nuevo precio
         PriceEntity newPrice = PriceEntity.builder()
                 .brandId(1L)
                 .startDate(LocalDateTime.parse("2023-01-01T00:00:00"))
@@ -57,17 +55,14 @@ public class PriceRepositoryIntegrationTests {
         PriceEntity savedPrice = jpaPriceRepository.save(newPrice);
         assertNotNull(savedPrice.getId());
         
-        // 2. Leer el precio guardado
         Optional<PriceEntity> retrievedPrice = jpaPriceRepository.findById(savedPrice.getId());
         assertTrue(retrievedPrice.isPresent());
         assertEquals(new BigDecimal("42.99"), retrievedPrice.get().getPrice());
         
-        // 3. Actualizar el precio
         retrievedPrice.get().setPrice(new BigDecimal("45.99"));
         PriceEntity updatedPrice = jpaPriceRepository.save(retrievedPrice.get());
         assertEquals(new BigDecimal("45.99"), updatedPrice.getPrice());
         
-        // 4. Eliminar el precio
         jpaPriceRepository.deleteById(updatedPrice.getId());
         assertFalse(jpaPriceRepository.findById(updatedPrice.getId()).isPresent());
     }
