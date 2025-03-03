@@ -1,4 +1,6 @@
 # Inditex
+Aquí tienes el README completo con el enlace al informe técnico al final:
+
 # Prueba Técnica Inditex
 
 ## Índice de Contenidos
@@ -18,6 +20,7 @@
 - [Integración Continua](#integración-continua)
 - [Decisiones de Diseño](#decisiones-de-diseño)
 - [Mejoras Futuras](#mejoras-futuras)
+- [Documentación Adicional](#documentación-adicional)
 
 ## Descripción del Proyecto
 
@@ -261,3 +264,7 @@ Posibles mejoras para futuras versiones:
 5. **Auditoría**: Registro de cambios en precios.
 6. **Monitorización y Métricas**: Integración con sistemas de monitorización.
 7. **Documentación Adicional**: Expandir la documentación técnica y de usuario.
+
+## Documentación Adicional
+
+Para una explicación más detallada de las decisiones técnicas y la implementación de la solución, consulte el [Informe de Solución Técnica](externos/InformeSolucionTecnica.md).
