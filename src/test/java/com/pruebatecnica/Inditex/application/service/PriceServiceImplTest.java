@@ -578,5 +578,6 @@ class PriceServiceImplTest {
         // El resto de campos deben permanecer igual
         assertEquals(price1.getBrandId(), result.getBrandId());
         assertEquals(price1.getProductId(), result.getProductId());
+        
     }
 }
