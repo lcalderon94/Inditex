@@ -168,12 +168,12 @@ public class PriceControllerIntegrationTest {
         // Ya que no tenemos getId() en PriceResponseDto, usaremos el priceList para identificar
         // Este enfoque funciona siempre que el priceList sea único
         
-        // 2. Obtener el precio por priceList (en un entorno real, sería mejor por ID)
-        mockMvc.perform(get("/api/prices")
-                .param("priceList", "10"))
+     // 2. Verificar que se creó correctamente obteniendo por ID (asumiendo que conoces el ID)
+        Long createdId = 5L; // El ID asignado al nuevo precio
+        mockMvc.perform(get("/api/prices/{id}", createdId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].priceList", is(10)))
-                .andExpect(jsonPath("$[0].price", is(45.99)));
+                .andExpect(jsonPath("$.priceList", is(10)))
+                .andExpect(jsonPath("$.price", is(45.99)));
                 
         // Alternativa: Buscar todos y filtrar
         String responseJson = createResult.getResponse().getContentAsString();
