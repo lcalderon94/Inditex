@@ -22,7 +22,7 @@
 
 ## Descripción del Proyecto
 
-Este proyecto es una prueba técnica para Inditex implementada para Capitole Consulting. Consiste en una API REST que proporciona información de precios para productos basándose en la fecha, ID del producto e ID de la marca. El sistema maneja superposiciones de precios utilizando reglas de prioridad para determinar la tarifa aplicable.
+Este proyecto es una prueba técnica para Inditex implementada para Inditex. Consiste en una API REST que proporciona información de precios para productos basándose en la fecha, ID del producto e ID de la marca. El sistema maneja superposiciones de precios utilizando reglas de prioridad para determinar la tarifa aplicable.
 
 La funcionalidad principal gira en torno a la tabla `PRICES` que almacena información de precios con los siguientes campos:
 
