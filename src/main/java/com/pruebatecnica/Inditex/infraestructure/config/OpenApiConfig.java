@@ -23,7 +23,7 @@ public class OpenApiConfig {
             .servers(Arrays.asList(server))
             .info(new Info()
                 .title("API DE PRECIOS")
-                .description("API para consulta y gestión de precios aplicables a productos según fecha, marca y prioridad marcados para la prueba tecnica de capitole")
+                .description("API para consulta y gestión de precios aplicables a productos según fecha, marca y prioridad marcados para la prueba tecnica")
                 .version("1.0")
                 .contact(new Contact()
                     .name("Luis Calderón")
